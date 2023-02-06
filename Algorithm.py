@@ -16,26 +16,53 @@ def compute_lk_tk(lamda,hk,N0,B,phyk,mk,Rk):
             lk[i]  = mk[i]
         elif phyk[i]  > lamda:
             lk[i]  = Rk[i]
-        tk[i]  = np.log(2) * lk[i]  / (lambertw((lamda * hk[i]  ** 2 - N0) / N0 * np.e).real + 1)
+        tk[i]  = np.log(2) * lk[i]  /(B* (lambertw((lamda * hk[i]  ** 2 - N0) / (N0 * np.e)).real)+1)
 
-    return sum(tk)
+
+    return sum(tk),lk,tk
 
 
 def Alorithm1(lamda,T,hk,N0,B,phyk,mk,Rk):
     lamda_l=0
     lamda_h=lamda
-    T_l=compute_lk_tk(lamda_l,hk,N0,B,phyk,mk,Rk)
-    T_h=compute_lk_tk(lamda_h,hk,N0,B,phyk,mk,Rk)
-
+    T_l,_,_=compute_lk_tk(lamda_l,hk,N0,B,phyk,mk,Rk)
+    T_h,_,_=compute_lk_tk(lamda_h,hk,N0,B,phyk,mk,Rk)
+    print("T_l:", T_l)
+    print("T_h:", T_h)
+    delta = 0.000001
     while T_l!=T and T_h!=T:
         lamda_m=(lamda_l+lamda_h)/2
-        T_m = compute_lk_tk(lamda_m, hk, N0, B, phyk, mk, Rk)
-        if T_m==T:
+        print("lamda_m:",lamda_m)
+        T_m,_,_ = compute_lk_tk(lamda_m, hk, N0, B, phyk, mk, Rk)
+        print('T_m:',T_m)
+        if abs(T_m-T)<delta:
             lamda=lamda_m
-        elif T_m<T:
+            break
+        if T_m<T:
             lamda_h=lamda_m
         else:
             lamda_l=lamda_m
+    _,lk_star,tk_star=compute_lk_tk(lamda,hk,N0,B,phyk,mk,Rk)
+    return lk_star,tk_star
+
+#-------------------baseline---------------------#
+def Equal_allocation(T,N,Rk,mk):
+
+
+    pass
+
+def optimal():
+
+    pass
+
+def sub_optimal():
+
+    pass
+
+
+
+
+
 
 def bisection(h, M, weights=[]):
     # the bisection algorithm proposed by Suzhi BI
@@ -151,4 +178,5 @@ def lr_method(h):
             sum_rate += wi[i] * B / Vu * tau_i.value[i] * np.log2(1 + E[i] * h[i] / (N0 * tau_i.value[i]))
         else:
             sum_rate += wi[i] * (E[i] / ki) ** (1 / 3) * 10 ** 6
+    # N0 * (math.pow(2, x / B) - 1)
     return sum_rate, mode
