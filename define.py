@@ -19,7 +19,7 @@ MHZ = KHZ*1e3
 GHZ = MHZ*1e3
 
 # Time scales
-T_slot = 2e-1  # seconds
+T_slot = 0.7 # seconds  0.5-0.8下降曲线（0.8的时候特别小）
 
 
 # Channels
@@ -29,10 +29,10 @@ B = 10*MHZ  # MHz
 N0 = 1e-9  # 单位：W The variance of complex white Gaussian channel noise
 
 # MECS
-frequency = 20*GHZ  # GHz
-f_minportion = 0.1*GHZ  # GHz  # not implemented yet
-MEC_CPU_CYCLE = 1500 # cycle per bit; Energy-efficient resource allocation for mobile-edge computation offloading, 2017
-MEC_F = 6e9 # cycles per slot.3
+# frequency = 20*GHZ  # GHz
+# f_minportion = 0.1*GHZ  # GHz  # not implemented yet
+# F_MEC = 1500 # cycle per bit; Energy-efficient resource allocation for mobile-edge computation offloading, 2017
+F_MEC = 6e9 # cycles per slot.3 33970851290.0
 
 
 
@@ -41,7 +41,7 @@ Fk = np.array([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0],dtype=float)*GHZ  # GHz 
 Pk = [0,20e-11]               #J/cycle
 Rk = [100*KB,500*KB]
 Ck = [500, 1500]       #cycles/bit.
-UE_n=30
+UE_n=20
 
 
 

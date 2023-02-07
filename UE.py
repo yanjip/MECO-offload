@@ -29,8 +29,16 @@ class UE:
         if self.vk<1:
             self.phyk=0     #Priority Function
         else:
-            self.phyk=define.N0*(self.vk*np.log(self.vk)-self.vk+1)
+            self.phyk=define.N0*(self.vk*np.log(self.vk)-self.vk+1)/self.hk**2
         return self.phyk
+
+    def get_new_phyk(self,u):
+        self.vk2=define.B*self.Ck*(self.Pk-u)*self.hk**2/(define.N0*np.log(2))
+        if self.vk2<1:
+            self.phyk2=0     #Priority Function
+        else:
+            self.phyk2=define.N0*(self.vk*np.log(self.vk)-self.vk+1)/self.hk**2
+        return self.phyk2
 
     def offload(self):
 
@@ -40,6 +48,7 @@ class UE:
         pass
 
     def offload_consume(self,lk,tk):
+        if tk==0: return 0
         return tk*define.fx(lk/tk)/self.hk**2
 
 
@@ -65,9 +74,14 @@ class UE_All:
         # print(type(self.Pk)
 
         #生成信道数据
-        H = np.random.rayleigh(scale=2, size= self.N)*1e-3
-        # H = np.random.rayleigh(scale=2, size= self.N)
-        # print('标准差为2瑞利分布：\n', H)
+        H = np.random.rayleigh(scale=1, size= self.N)*1e-3
+        # H = np.random.rayleigh(scale=1, size= self.N)
+        # H=np.sqrt(np.random.exponential(1e-6,self.N))
+        # print(H)
+        # while np.min(H)==0:
+        #     # np.random.seed(0)
+        #     H = np.sqrt(np.random.exponential(1e-6, self.N))
+
         # u, s, v = np.linalg.svd(H[0])
         self.hk= H
         # print("hk:",self.hk)
@@ -82,11 +96,21 @@ class UE_All:
             self.mk[i]=self.ues[i].get_mk()
         print("phyk:",self.phyk)
 
+    def get_new_phy_all(self,u):
+        self.phyk2=[0]*self.N
+        for i in range(self.N):
+            self.phyk2[i]=self.ues[i].get_new_phyk(u)
+        return self.phyk2
+
+
     def testAlgor1(self):
         lamda_max=max(self.phyk)
         print("lamdamax:",lamda_max)
         self.lk_star,self.tk_star=Alorithm1(lamda_max,define.T_slot,self.hk,define.N0,define.B,self.phyk,self.mk,self.Rk)
+        print("------u1.lk_star, u1.tk_star:-----------------------------\n", u1.lk_star, u1.tk_star)
 
+    # def testAlgor2(self):
+    #     return Alorithm2(self.lk_star,self.Ck,define.F_MEC)
 
     def offload_user(self):
 
@@ -117,15 +141,40 @@ class UE_All:
         self.energy_sum=sum(energy_local)+sum(energy_offload)
         return self.energy_sum
 
+    def energy_all_2(self):
+        #本地耗能
+        energy_local=[0]*self.N
+        energy_offload=[0]*self.N
+
+        for i in range(self.N):
+            energy_local[i]=self.ues[i].local_consume(self.lk_star2[i])
+            energy_offload[i]=self.ues[i].offload_consume(self.lk_star2[i],self.tk_star2[i])
+        self.energy_sum=sum(energy_local)+sum(energy_offload)
+        return self.energy_sum
+
 if __name__ == '__main__':
-    np.random.seed(0)
+    np.random.seed(1)
     u1=UE_All()
     u1.generate_ue()
     u1.testAlgor1()
     s=u1.energy_all()
-    print("耗能：")
+    print("算法一耗能：")
     print(s)
 
     #cvxpy
-    cvxSolve(u1.hk,u1.mk,u1.Rk,u1.Pk,u1.Ck)
+    tk=[define.T_slot/u1.N]*u1.N
+    s_equal=cvxSolve(u1.hk,u1.mk,u1.Rk,u1.Pk,u1.Ck,tk)
+
+    print("算法一耗能：",s)
+    print("equel耗能：",s_equal)
+
+    #算法2
+    # u1.testAlgor2()
+    # u1.lk_star2,u1.tk_star2=Alorithm2(u1.lk_star, u1.Ck, define.F_MEC,u1)
+    # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
+    # print("---------------\n 算法二执行完毕")
+    # s2=u1.energy_all_2()
+    # print("算法一耗能：",s)
+    # print("算法二耗能：",s2)
+    # print("equel耗能：",s_equal)
 
