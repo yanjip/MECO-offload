@@ -37,7 +37,7 @@ class UE:
         if self.vk2<1:
             self.phyk2=0     #Priority Function
         else:
-            self.phyk2=define.N0*(self.vk*np.log(self.vk)-self.vk+1)/self.hk**2
+            self.phyk2=define.N0*(self.vk2*np.log(self.vk2)-self.vk2+1)/self.hk**2
         return self.phyk2
 
     def offload(self):
@@ -74,9 +74,9 @@ class UE_All:
         # print(type(self.Pk)
 
         #生成信道数据
-        H = np.random.rayleigh(scale=1, size= self.N)*1e-3
+        # H = np.random.rayleigh(scale=1, size= self.N)*1e-3
         # H = np.random.rayleigh(scale=1, size= self.N)
-        # H=np.sqrt(np.random.exponential(1e-6,self.N))
+        H=np.sqrt(np.random.exponential(1e-6,self.N))
         # print(H)
         # while np.min(H)==0:
         #     # np.random.seed(0)
@@ -107,7 +107,7 @@ class UE_All:
         lamda_max=max(self.phyk)
         print("lamdamax:",lamda_max)
         self.lk_star,self.tk_star=Alorithm1(lamda_max,define.T_slot,self.hk,define.N0,define.B,self.phyk,self.mk,self.Rk)
-        print("------u1.lk_star, u1.tk_star:-----------------------------\n", u1.lk_star, u1.tk_star)
+        # print("------u1.lk_star, u1.tk_star:-----------------------------\n", u1.lk_star, u1.tk_star)
 
     # def testAlgor2(self):
     #     return Alorithm2(self.lk_star,self.Ck,define.F_MEC)
@@ -153,13 +153,13 @@ class UE_All:
         return self.energy_sum
 
 if __name__ == '__main__':
-    np.random.seed(1)
+    np.random.seed(2)
     u1=UE_All()
     u1.generate_ue()
+
+    #-----------算法一
     u1.testAlgor1()
     s=u1.energy_all()
-    print("算法一耗能：")
-    print(s)
 
     #cvxpy
     tk=[define.T_slot/u1.N]*u1.N
@@ -167,14 +167,14 @@ if __name__ == '__main__':
 
     print("算法一耗能：",s)
     print("equel耗能：",s_equal)
-
+    with open('res.txt','w') as F:
+        F.write("算法一耗能："+ str(s))
     #算法2
-    # u1.testAlgor2()
     # u1.lk_star2,u1.tk_star2=Alorithm2(u1.lk_star, u1.Ck, define.F_MEC,u1)
-    # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
+    # # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
     # print("---------------\n 算法二执行完毕")
     # s2=u1.energy_all_2()
-    # print("算法一耗能：",s)
+    # # print("算法一耗能：",s)
     # print("算法二耗能：",s2)
     # print("equel耗能：",s_equal)
 

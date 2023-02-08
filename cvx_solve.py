@@ -3,16 +3,18 @@
 @Created on Date：2023/2/5 23:43 
 '''
 import cvxpy as cvx
-from define import *
+# from define import *
+import define
+import numpy as np
 def cvxSolve(hk,mk,Rk,Pk,Ck,tk):
     tk=np.array(tk)
-    lk=cvx.Variable(UE_n)
+    lk=cvx.Variable(define.UE_n)
     # tk=cvx.Variable(UE_n)
 
 
     question=cvx.sum(
         cvx.multiply(1/hk**2,cvx.multiply(tk,
-                                          (cvx.exp(cvx.multiply(np.log(2),cvx.multiply(lk,1/tk)/B))-1)*N0
+                                          (cvx.exp(cvx.multiply(np.log(2),cvx.multiply(lk,1/tk)/define.B))-1)*define.N0
                                           )
     )+cvx.multiply(Pk,cvx.multiply(Ck,(Rk-lk)))
     )

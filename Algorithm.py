@@ -28,14 +28,14 @@ def compute_lk_tk(lamda,hk,N0,B,phyk,mk,Rk):
 
 
 def Alorithm1(lamda,T,hk,N0,B,phyk,mk,Rk):
-    print("lamda_max:",lamda)
+    print("lamda_max_alor1:",lamda)
     lamda_l=0.0
     lamda_h=lamda
     T_l,_,_=compute_lk_tk(lamda_l,hk,N0,B,phyk,mk,Rk)
     T_h,_,_=compute_lk_tk(lamda_h,hk,N0,B,phyk,mk,Rk)
     print("T_l:", T_l) #nan  lambertw(-0.36787944117144235) 应该是小数点太多了，计算出来为nan
     print("T_h:", T_h)
-    delta = 0.000001
+    delta = 0.0000001
     while T_l!=T and T_h!=T:
         lamda_m = (lamda_l + lamda_h) / 2
         print("lamda_m:",lamda_m)
@@ -60,7 +60,7 @@ def compute_F(Ck,lk):
     res=0.0
     lk=np.array(lk)     #不写这个会报错：RuntimeWarning: overflow encountered in long_scalars
     for i in range(len(Ck)):
-        res+=Ck[i]*lk[i]
+        res+=int(Ck[i])*int(lk[i])
     return res
 
     pass
@@ -77,6 +77,7 @@ def Alorithm2(lk_base1,Ck,F_MEC,ueall):
         return
     u_l=0
     u_h=get_u_max(ueall.Pk,define.N0,define.B,ueall.Ck,ueall.hk)
+
     ueall.get_new_phy_all(u_l)  #每个ue计算了自己的pyhk2
     lamda_max = max(ueall.phyk2)
     lk_algor1_ul, tk_star = Alorithm1(lamda_max, define.T_slot, ueall.hk, define.N0, define.B, ueall.phyk2, ueall.mk,ueall.Rk)
@@ -86,10 +87,10 @@ def Alorithm2(lk_base1,Ck,F_MEC,ueall):
     ueall.get_new_phy_all(u_h)  #每个ue计算了自己的pyhk2
     lamda_max = max(ueall.phyk2)
     # print("lamdamax:", lamda_max)
-    lk_algor1_uh, tk_star = Alorithm1(lamda_max, define.T_slot, ueall.hk, define.N0, define.B, ueall.phyk2, ueall.mk,ueall.Rk)
-    F_h=compute_F(Ck,lk_algor1_uh)
+    # lk_algor1_uh, tk_star = Alorithm1(lamda_max, define.T_slot, ueall.hk, define.N0, define.B, ueall.phyk2, ueall.mk,ueall.Rk)
+    # F_h=compute_F(Ck,lk_algor1_uh)
 
-    while F_l!=F_MEC and F_h!=F_MEC:
+    while F_l!=F_MEC :
         u_m=(u_l+u_h)/2
         ueall.get_new_phy_all(u_m)  # 每个ue计算了自己的pyhk2
         lamda_max = max(ueall.phyk2)
