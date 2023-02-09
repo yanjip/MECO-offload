@@ -152,23 +152,38 @@ class UE_All:
         self.energy_sum=sum(energy_local)+sum(energy_offload)
         return self.energy_sum
 
+    def energy_all_3(self):
+        #本地耗能
+        energy_local=[0]*self.N
+        energy_offload=[0]*self.N
+
+        for i in range(self.N):
+            energy_local[i]=self.ues[i].local_consume(self.lk_star3[i])
+            energy_offload[i]=self.ues[i].offload_consume(self.lk_star3[i],self.tk_star3[i])
+        self.energy_sum=sum(energy_local)+sum(energy_offload)
+        return self.energy_sum
+
 if __name__ == '__main__':
     np.random.seed(2)
     u1=UE_All()
     u1.generate_ue()
 
+
+
+    print("T_bound",get_Tmin(u1))
+
+
+
     #-----------算法一
     u1.testAlgor1()
     s=u1.energy_all()
 
-    #cvxpy
-    tk=[define.T_slot/u1.N]*u1.N
-    s_equal=cvxSolve(u1.hk,u1.mk,u1.Rk,u1.Pk,u1.Ck,tk)
 
     print("算法一耗能：",s)
-    print("equel耗能：",s_equal)
-    with open('res.txt','w') as F:
-        F.write("算法一耗能："+ str(s))
+    # print("equel耗能：",s_equal)
+    # with open('res.txt','w') as F:
+    #     F.write("算法一耗能："+ str(s))
+
     #算法2
     # u1.lk_star2,u1.tk_star2=Alorithm2(u1.lk_star, u1.Ck, define.F_MEC,u1)
     # # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
@@ -177,4 +192,19 @@ if __name__ == '__main__':
     # # print("算法一耗能：",s)
     # print("算法二耗能：",s2)
     # print("equel耗能：",s_equal)
+
+    #算法三
+    u1.lk_star3,u1.tk_star3=Alorithm3(u1.lk_star, u1.Ck, define.F_MEC,u1,define.T_slot)
+    print("---------------\n 算法三执行完毕")
+
+    # print("-----------------------------------\n",tk,lk)
+    s3=u1.energy_all_3()
+    print("算法三耗能：",s3)
+    print("算法一耗能：", s)
+
+    #cvxpy
+
+    tk=[define.T_slot/u1.N]*u1.N
+    s_equal=cvxSolve(u1.hk,u1.mk,u1.Rk,u1.Pk,u1.Ck,tk,define.F_MEC)
+
 

@@ -19,7 +19,7 @@ MHZ = KHZ*1e3
 GHZ = MHZ*1e3
 
 # Time scales
-T_slot = 0.9# seconds  0.5-0.8下降曲线（0.8的时候特别小）
+T_slot =0.65# seconds  0.5-0.8下降曲线（0.8的时候特别小）
 
 #  UE at any slot
 Fk = np.array([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0],dtype=float)*GHZ  # GHz Unified distributed
@@ -36,7 +36,7 @@ B = 10*MHZ  # MHz
 N0 = 1e-9  # 单位：W The variance of complex white Gaussian channel noise
 
 # MECS
-F_MEC = 6e9 # cycles per slot.3 33970851290.0
+F_MEC = 100e9 # cycles per slot.3 33970851290.0
 
 
 
