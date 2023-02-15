@@ -6,7 +6,7 @@ import define
 import math
 import numpy as np
 from Algorithm import *
-from cvx_solve import cvxSolve
+from cvx_solve import cvxSolve,solve_equel
 class UE:
     def __init__(self,Pk,Rk,Fk,Ck,hk,id):
         self.id=id
@@ -16,7 +16,7 @@ class UE:
         self.Ck=Ck
         # self.lk=lk
         self.hk=hk
-        self.mk=max(self.Rk-self.Fk*define.T_slot/self.Ck,0)
+        self.mk=max(self.Rk-int(self.Fk*define.T_slot/self.Ck),0)
         self.vk=define.B*Ck*Pk*hk**2/(define.N0*np.log(2))
         print("vk:",self.vk)
 
@@ -44,7 +44,7 @@ class UE:
 
         pass
     def local_consume(self,lk):
-        return (self.Rk-lk)*self.Ck*self.Pk
+        return int(self.Rk-lk)*int(self.Ck)*(self.Pk)
         pass
 
     def offload_consume(self,lk,tk):
@@ -65,7 +65,7 @@ class UE_All:
         self.N=define.UE_n
         # np.random.seed(0)
         self.Pk=np.random.uniform(0,20e-11, self.N)
-        self.Rk=np.random.randint(define.Rk[0],define.Rk[1],self.N)
+        self.Rk=np.random.randint(define.Rk[0],define.Rk[1],self.N)*define.KB
         self.Fk=np.random.choice(define.Fk,self.N)
         self.Ck=np.random.randint(500,1500,self.N)
         # print(self.Pk,self.Rk,self.Fk,self.Ck)
@@ -112,9 +112,12 @@ class UE_All:
     # def testAlgor2(self):
     #     return Alorithm2(self.lk_star,self.Ck,define.F_MEC)
 
-    def offload_user(self):
-
+    def get_vk(self):
+        self.vk=[0]*self.N
+        for i in range(self.N):
+            self.vk[i]=self.ues[i].vk
         pass
+        return self.vk
     def energy_all(self):
         #本地耗能
         energy_local=[0]*self.N
@@ -129,7 +132,7 @@ class UE_All:
         pass
     # def sort(self):
     # def equal_allocation(self):
-    def energy_all_equal_allocation(self,lk,tk):
+    def energy_all_equal_allocation(self,lk,tk):    #不用的
         # tk=[define.T_slot/self.N]*self.N
         #本地耗能
         energy_local=[0]*self.N
@@ -162,49 +165,81 @@ class UE_All:
             energy_offload[i]=self.ues[i].offload_consume(self.lk_star3[i],self.tk_star3[i])
         self.energy_sum=sum(energy_local)+sum(energy_offload)
         return self.energy_sum
+    def get_F_bound(self):
+        t1= 0
+        t2=0
+        for i in range(self.N):
+            t1+=int(self.Ck[i])*int(self.mk[i])
+            t2+=int(self.Ck[i])*int(self.Rk[i])
+        return t1,t2
 
+    def get_T_max(self):
+        res=0.0
+        lamda=min(self.phyk)
+        if lamda==0:
+            print("lamda==0")
+            exit(0)
+
+        for i in range(self.N):
+            if self.phyk[i] >0:
+                lk= self.Rk[i]
+            elif self.phyk[i] ==0:
+                lk = self.mk[i]
+            # tk[i]  = np.log(2) * lk[i]  /((lambertw((lamda * hk[i]  ** 2 - N0) / (N0 * np.e)).real+1)*B)
+            # tk[i]  = np.log(2) * lk[i]  /(B* (lambertw((lamda * hk[i]  ** 2 - N0) / (N0 * np.e)).real)+1) #旧版本
+            res += np.log(2) * lk / (define.B * (lambertw((lamda * self.hk[i] ** 2 - define.N0) / (define.N0 * np.e)).real + 1))
+        return res
+        pass
 if __name__ == '__main__':
-    np.random.seed(2)
+    np.random.seed(3)
     u1=UE_All()
     u1.generate_ue()
-
-
-
-    print("T_bound",get_Tmin(u1))
-
-
 
     #-----------算法一
     u1.testAlgor1()
     s=u1.energy_all()
 
 
-    print("算法一耗能：",s)
-    # print("equel耗能：",s_equal)
-    # with open('res.txt','w') as F:
-    #     F.write("算法一耗能："+ str(s))
 
     #算法2
     # u1.lk_star2,u1.tk_star2=Alorithm2(u1.lk_star, u1.Ck, define.F_MEC,u1)
-    # # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
+    # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
     # print("---------------\n 算法二执行完毕")
     # s2=u1.energy_all_2()
-    # # print("算法一耗能：",s)
     # print("算法二耗能：",s2)
-    # print("equel耗能：",s_equal)
 
-    #算法三
+    # # print("算法一耗能：",s)
+    # print("equel耗能：",s_equal)
+    # print("T_bound",get_Tmin(u1))
+    #
+    # #算法三
     u1.lk_star3,u1.tk_star3=Alorithm3(u1.lk_star, u1.Ck, define.F_MEC,u1,define.T_slot)
     print("---------------\n 算法三执行完毕")
 
-    # print("-----------------------------------\n",tk,lk)
+    # # print("-----------------------------------\n",tk,lk)
     s3=u1.energy_all_3()
     print("算法三耗能：",s3)
+    # print("算法二耗能：",s2)
     print("算法一耗能：", s)
 
     #cvxpy
 
     tk=[define.T_slot/u1.N]*u1.N
-    s_equal=cvxSolve(u1.hk,u1.mk,u1.Rk,u1.Pk,u1.Ck,tk,define.F_MEC)
+    s_equal=cvxSolve(u1.hk,u1.mk,u1.Rk,u1.Pk,u1.Ck,tk,define.F_MEC) #函数里面打印了结果
 
 
+    #equel_new
+    # s_equal2=solve_equel(u1)
+    # print("equel耗能：",s_equal2)
+
+
+    print("t1,t2:",u1.get_F_bound())
+    print("T_max:",u1.get_T_max())
+    print("T_min:",get_Tmin(u1))
+
+
+    #---------------------------------
+    # u1.lk_star=u1.mk
+    # _,u1.tk_star=compute_tk()
+    # s=u1.energy_all()
+    # print("耗能：",s)

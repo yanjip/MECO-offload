@@ -47,7 +47,16 @@ def Alorithm1(lamda,T,hk,N0,B,phyk,mk,Rk):
     T_h,_,_=compute_lk_tk(lamda_h,hk,N0,B,phyk,mk,Rk)
     print("T_l:", T_l) #nan  lambertw(-0.36787944117144235) 应该是小数点太多了，计算出来为nan
     print("T_h:", T_h)
-    delta = 0.0000001
+    delta = 0.000000001
+    if abs(T_l - T) < delta:
+        lamda = lamda_l
+        _, lk_star, tk_star = compute_lk_tk(lamda, hk, N0, B, phyk, mk, Rk)
+        return lk_star, tk_star
+    if abs(T_h - T) < delta:
+        lamda = lamda_h
+        _,lk_star,tk_star=compute_lk_tk(lamda,hk,N0,B,phyk,mk,Rk)
+        return lk_star,tk_star
+
     while T_l!=T and T_h!=T:
         lamda_m = (lamda_l + lamda_h) / 2
         print("lamda_m:",lamda_m)
@@ -79,7 +88,7 @@ def compute_F(Ck,lk):
 def get_u_max(Pk,N0,B,Ck,hk):
     u_list=[0]*len(Ck)
     for i in range(len(Ck)):
-        u_list[i]=Pk[i]-N0*np.log(2)/(B*Ck[i]*hk[i]**2)
+        u_list[i]=Pk[i]-(N0*np.log(2))/(B*Ck[i]*hk[i]**2)
     return max(u_list)
 
 def Alorithm2(lk_base1,Ck,F_MEC,ueall):
@@ -96,8 +105,8 @@ def Alorithm2(lk_base1,Ck,F_MEC,ueall):
     F_l=compute_F(Ck,lk_algor1_ul)
 
 
-    ueall.get_new_phy_all(u_h)  #每个ue计算了自己的pyhk2
-    lamda_max = max(ueall.phyk2)
+    # ueall.get_new_phy_all(u_h)  #每个ue计算了自己的pyhk2
+    # lamda_max = max(ueall.phyk2)
     # print("lamdamax:", lamda_max)
     # lk_algor1_uh, tk_star = Alorithm1(lamda_max, define.T_slot, ueall.hk, define.N0, define.B, ueall.phyk2, ueall.mk,ueall.Rk)
     # F_h=compute_F(Ck,lk_algor1_uh)
@@ -109,7 +118,7 @@ def Alorithm2(lk_base1,Ck,F_MEC,ueall):
         lk_algor1_um, tk_star = Alorithm1(lamda_max, define.T_slot, ueall.hk, define.N0, define.B, ueall.phyk2,
                                           ueall.mk, ueall.Rk)
         F_m=compute_F(Ck,lk_algor1_um)
-        delta=1e3
+        delta=0.1e9
         print("F_M:",F_m)
         print("差值：",abs(F_MEC-F_m))
         if abs(F_MEC-F_m)<delta:
@@ -139,22 +148,25 @@ def Alorithm3(lk_base1,Ck,F_MEC,ueall,T):
     tk=[0]*len(Ck)
     F=compute_F(Ck,lk_base1)
     print("F:",F)
+    F_min=compute_F(Ck,ueall.mk)
+    print("F_min:",F_min)
     if F<=F_MEC:
         return lk_base1,ueall.tk_star
 
-    idx=[i for i in range(define.UE_n)]
+    idx=[i for i in range(ueall.N)]
     d=dict(zip(idx,ueall.phyk))
     d=sorted(d.items(), key=lambda x: x[1], reverse=True) #现在是列表
 
-    F_temp=0.0
+    F_temp=0
     for i in d:
-        F_temp += Ck[i[0]] * lk[i[0]]
-        if F_temp<=define.F_MEC:
+        F_temp += int(Ck[i[0]]) * int(ueall.Rk[i[0]])
+        if F_temp<=F_MEC:
             lk[i[0]]=ueall.Rk[i[0]]
-
         else:
+            F_temp -= int(Ck[i[0]]) * int(ueall.Rk[i[0]])
             lk[i[0]]=ueall.mk[i[0]]
-
+            F_temp += int(Ck[i[0]]) * int(ueall.mk[i[0]])
+    print("F_temp:",F_temp)
     lamda_max=max(ueall.phyk)
 
     # Alorithm1(lamda_max,define.T_slot,ueall.hk,define.N0,define.B,
@@ -166,7 +178,7 @@ def Alorithm3(lk_base1,Ck,F_MEC,ueall,T):
     T_h, _= compute_tk(lamda_h,lk,define.B,ueall.hk,define.N0)
     print("T_l:", T_l)  # nan  lambertw(-0.36787944117144235) 应该是小数点太多了，计算出来为nan
     print("T_h:", T_h)
-    delta = 0.00001
+    delta = 0.0000001
     while T_l != T and T_h != T:
         lamda_m = (lamda_l + lamda_h) / 2
         print("lamda_m:", lamda_m)
