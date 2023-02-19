@@ -36,7 +36,7 @@ B = 10*MHZ  # MHz
 N0 = 1e-9  # 单位：W The variance of complex white Gaussian channel noise
 
 # MECS
-F_MEC =61e9 # cycles per slot.3 33970851290.0  57-69      69-28-2.3
+F_MEC =52e9 # cycles per slot.3 33970851290.0  57-69      69-28-2.3
 
 
 

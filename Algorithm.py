@@ -13,7 +13,7 @@ def compute_lk_tk(lamda,hk,N0,B,phyk,mk,Rk):
     lk=[0]*len(Rk)
     tk=[0]*len(Rk)
 
-    for i in range(len(Rk)):
+    for i in range(define.UE_n):
         if mk[i]==0:
             continue
         if phyk[i] < lamda:

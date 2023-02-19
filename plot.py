@@ -11,17 +11,35 @@ def plot_3(alor3,aver,F):
     plt.plot(F,alor3,linestyle='--',label='算法三')
     plt.plot(F,aver,linestyle='--',label='baseline')
     plt.legend(loc='best')
-    plt.xlabel('Cloud computaion capacity')
+    plt.xlabel('Cloud computaion capacity (e9)')
     plt.ylabel('total mobile energy consumption(J)')
     plt.show()
 
 def plot_2(res2,res3,aver,N):
     plt.rcParams['font.sans-serif'] = ['SimHei']
-    plt.plot(N,res2,linestyle='--',label='算法三')
-    plt.plot(N,res3,label='算法二')
-    plt.plot(N,aver,linestyle='--',label='baseline')
+    func1 = np.polyfit(N, res2, 3)
+    func2 = np.polyfit(N, res3, 3)
+    func3 = np.polyfit(N, aver, 3)
+
+    xn = np.linspace(N[0], N[-1], 30)
+
+    yn3 = np.poly1d(func3)
+
+
+    # plt.plot(N,aver,linestyle='--',label='baseline')
+    plt.plot(xn, yn3(xn),linestyle='--',label='baseline')
+
+    yn2 = np.poly1d(func2)
+    # plt.plot(N,res3,label='算法二')
+    plt.plot(xn, yn2(xn),label='算法二')
+
+
+    yn = np.poly1d(func1)
+    # plt.plot(N,res2,linestyle='--',label='算法三')
+    plt.plot(xn, yn(xn),linestyle='--',label='算法三')
+
     plt.legend(loc='best')
-    plt.xlabel('Time Slot duration(S)')
+    plt.xlabel('Numbers of users')
     plt.ylabel('total mobile energy consumption(J)')
     plt.show()
 

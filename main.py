@@ -99,7 +99,7 @@ F=[56e9,58e9,60e9,62e9,64e9,66e9,68e9,72e9,76e9,80e9]
 F=np.array(F)-10e9  #原本18
 define.T_slot=1.05
 define.UE_n=25
-np.random.seed(6)
+np.random.seed(700)
 u1 = UE_All()
 u1.generate_ue()
 # -----------算法一

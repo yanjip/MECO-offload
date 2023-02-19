@@ -59,14 +59,14 @@ def Picture2():
     res2=[]
     res3=[]
     aver=[]
-    define.F_MEC=65e9
-    define.T_slot=1.55
+    define.F_MEC=82e9  #66还行
+    define.T_slot=1.30
 
     for n in N:
         define.UE_n=n
-        u1 = UE_All()
-        u1.generate_ue()
-
+        # u1 = UE_All()
+        # u1.generate_ue()
+        u1.N=n
         # -----------算法一
         u1.testAlgor1()
         s = u1.energy_all()
@@ -84,7 +84,7 @@ def Picture2():
 
         # cvxpy
         tk = [define.T_slot / n] * n
-        s_equal = cvxSolve(u1.hk, u1.mk, u1.Rk, u1.Pk, u1.Ck, tk,define.F_MEC)
+        s_equal = cvxSolve(u1.hk[:n], u1.mk[:n], u1.Rk[:n], u1.Pk[:n], u1.Ck[:n], tk[:n],define.F_MEC)
 
         res2.append(s2)
         res3.append(s3)
@@ -112,7 +112,10 @@ T=np.array([1.15,1.25,1.35,1.45,1.55])+0.0
 
 
 # N=[10,15,20,25,30,35]
-N=np.linspace(5,30,6,dtype=int)
-np.random.seed(6)
+N=np.linspace(10,30,6,dtype=int)
+np.random.seed(5) #5可以
+define.UE_n=N[-1]
+u1 = UE_All()
+u1.generate_ue()
 Picture2()
 

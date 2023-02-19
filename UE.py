@@ -176,9 +176,9 @@ class UE_All:
     def get_T_max(self):
         res=0.0
         lamda=min(self.phyk)
-        if lamda==0:
-            print("lamda==0")
-            exit(0)
+        # if lamda==0:
+        #     print("lamda==0")
+        #     exit(0)
 
         for i in range(self.N):
             if self.phyk[i] >0:
@@ -191,7 +191,7 @@ class UE_All:
         return res
         pass
 if __name__ == '__main__':
-    np.random.seed(3)
+    np.random.seed(700)
     u1=UE_All()
     u1.generate_ue()
 
@@ -202,11 +202,11 @@ if __name__ == '__main__':
 
 
     #算法2
-    # u1.lk_star2,u1.tk_star2=Alorithm2(u1.lk_star, u1.Ck, define.F_MEC,u1)
-    # print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
-    # print("---------------\n 算法二执行完毕")
-    # s2=u1.energy_all_2()
-    # print("算法二耗能：",s2)
+    u1.lk_star2,u1.tk_star2=Alorithm2(u1.lk_star, u1.Ck, define.F_MEC,u1)
+    print("-----------------------------------\n",u1.lk_star2,u1.tk_star2)
+    print("---------------\n 算法二执行完毕")
+    s2=u1.energy_all_2()
+    print("算法二耗能：",s2)
 
     # # print("算法一耗能：",s)
     # print("equel耗能：",s_equal)
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     # # print("-----------------------------------\n",tk,lk)
     s3=u1.energy_all_3()
     print("算法三耗能：",s3)
-    # print("算法二耗能：",s2)
+    print("算法二耗能：",s2)
     print("算法一耗能：", s)
 
     #cvxpy
